@@ -1,22 +1,25 @@
 #include "main.h"
 
+char* source;
 Token* token;
 
 void print_token() {
     Token* cur = token;
     while (cur->kind != TK_EOF) {
+        char token[64] = "";
+        strncpy(token, cur->str, cur->len);
         switch (cur->kind) {
         case TK_KEY:
-            printf("%s\n", "Keyword");
+            printf("%-10s:%s\n", token, "予約語");
             break;
         case TK_PUNCT:
-            printf("%s\n", "Punctuators");
+            printf("%-10s:%s\n", token, "記号");
             break;
         case TK_IDENT:
-            printf("%s\n", "Identifier");
+            printf("%-10s:%s\n", token, "名前");
             break;
         case TK_NUM:
-            printf("%s\n", "Numeric literals");
+            printf("%-10s:%s\n", token, "整数");
             break;
         case TK_EOF:
             break;
@@ -30,7 +33,8 @@ int main(int argc, char** argv) {
         fprintf(stderr, "no input file");
         exit(EXIT_FAILURE);
     }
-    token = tokenize(argv[1]);
+    source = read_file(argv[1]);
+    token = tokenize(source);
     print_token();
     return 0;
 }

@@ -13,8 +13,8 @@ bool startswith(char* p, char* q) {
     return memcmp(p, q, strlen(q)) == 0;
 }
 
-Token* tokenize(char* path) {
-    char* p = read_file(path);
+Token* tokenize(char* source) {
+    char* p = source;
     // printf("get file\n");
     
     Token head; head.next = NULL;
@@ -65,7 +65,7 @@ Token* tokenize(char* path) {
 }
 
 // 'path' ファイルの中身を char* に格納
-static char* read_file(char* path) {
+char* read_file(char* path) {
     // open 'path' file
     FILE* fp;
     if ( ( fp = fopen(path, "r") ) == NULL ) {
