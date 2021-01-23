@@ -5,7 +5,6 @@ int main(int argc, char** argv) {
         fprintf(stderr, "no input file");
         exit(EXIT_FAILURE);
     }
-    char* source = read_file(argv[1]);
-    printf("%s", source);
+    tokenize(argv[1]);
     return 0;
 }

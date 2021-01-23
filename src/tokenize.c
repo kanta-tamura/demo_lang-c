@@ -1,7 +1,22 @@
 #include "main.h"
 
+Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
+    Token* tok = calloc(1, sizeof(Token));
+    tok->kind = kind;
+    tok->str  = str;
+    tok->len  = len;
+    tok->next = tok;
+    return tok;
+}
+
+Token* tokenize(char* path) {
+    char* p = read_file(path);
+    
+    printf("%s", p);
+}
+
 // 'path' ファイルの中身を char* に格納
-char* read_file(char* path) {
+static char* read_file(char* path) {
     // open 'path' file
     FILE* fp;
     if ( ( fp = fopen(path, "r") ) == NULL ) {

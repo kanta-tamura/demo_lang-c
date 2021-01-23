@@ -21,5 +21,6 @@ struct Token {
     int len;        // Token length
 };
 
-// TODO: change static
-char* read_file(char* path);
+Token* new_token(TokenKind kind, Token* cur, char* str, int len);
+Token* tokenize(char* path);
+static char* read_file(char* path);
