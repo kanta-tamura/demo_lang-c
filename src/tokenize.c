@@ -1,5 +1,6 @@
 #include "main.h"
 
+// create new token
 static Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
     Token* tok = calloc(1, sizeof(Token));
     tok->kind = kind;
@@ -9,11 +10,13 @@ static Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
     return tok;
 }
 
-static bool startswith(char* p, char* q) {
+// 'p' の先頭と 'q' の内容が一致するかどうかを判定する。
+static bool starts_with(char* p, char* q) {
     return memcmp(p, q, strlen(q)) == 0;
 }
 
-static bool iskeyword(char* p) {
+// 予約語かどうかを判定する。
+static bool is_keyword(char* p) {
     static char* kw[] = {
       "begin", "end", "if", "then", "while", "do", "return",
       "function", "var", "const", "odd", "write", "writeln",
@@ -27,8 +30,9 @@ static bool iskeyword(char* p) {
     return false;
 }
 
-Token* tokenize(char* source) {
-    char* p = source;
+// 'path' ファイルの内容をトークンに分割する。
+Token* tokenize(char* path) {
+    char* p = read_file(path);
     
     Token head; head.next = NULL;
     Token* cur = &head;
@@ -41,8 +45,8 @@ Token* tokenize(char* source) {
         }
         
         // Multi-letter punctuator
-        if (startswith(p, "<>") || startswith(p, "<=") ||
-            startswith(p, ">=") || startswith(p, ":=")) {
+        if (starts_with(p, "<>") || starts_with(p, "<=") ||
+            starts_with(p, ">=") || starts_with(p, ":=")) {
             cur = new_token(TK_PUNCT, cur, p, 2);
             p += 2;
             continue;
@@ -55,7 +59,7 @@ Token* tokenize(char* source) {
         }
         
         // key-word
-        if (iskeyword(p)) {
+        if (is_keyword(p)) {
             cur = new_token(TK_KEY, cur, p, 0);
             char* q = p;
             while (isalpha(*p)) { p++; }
@@ -87,7 +91,7 @@ Token* tokenize(char* source) {
 }
 
 // 'path' ファイルの中身を char* に格納
-char* read_file(char* path) {
+static char* read_file(char* path) {
     // open 'path' file
     FILE* fp;
     if ( ( fp = fopen(path, "r") ) == NULL ) {
@@ -122,4 +126,34 @@ char* read_file(char* path) {
     fclose(out);
     
     return buf;
+}
+
+// トークンに分割したものを出力する。
+void debug_print_token(Token* tok) {
+    Token* cur = tok;
+    int i = 0;
+    while (cur->kind != TK_EOF) {
+        // export token string
+        char token[64] = "";
+        strncpy(token, cur->str, cur->len);
+        
+        switch (cur->kind) {
+        case TK_KEY:
+            printf("%3d:  %-10s:%s\n", i, token, "予約語");
+            break;
+        case TK_PUNCT:
+            printf("%3d:  %-10s:%s\n", i, token, "記号");
+            break;
+        case TK_IDENT:
+            printf("%3d:  %-10s:%s\n", i, token, "名前");
+            break;
+        case TK_NUM:
+            printf("%3d:  %-10s:%s\n", i, token, "整数");
+            break;
+        case TK_EOF:
+            break;
+        }
+        cur = cur->next;
+        i++;
+    }
 }

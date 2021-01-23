@@ -2,3 +2,4 @@
 obj/*.o
 obj/*.d
 *.txt
+!result.txt
