@@ -1,3 +1,4 @@
 *.out
 obj/*.o
 obj/*.d
+*.txt
