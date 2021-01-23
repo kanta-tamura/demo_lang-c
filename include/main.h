@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+//
+// tokenize.c
+//
+
 typedef enum {
     TK_KEY,     // 予約語(Keyword)
     TK_PUNCT,   // 区切り文字(Punctuators)
@@ -9,9 +13,13 @@ typedef enum {
     TK_EOF,     // End-of-file markers
 } TokenKind;
 
-//
-// tokenize.c
-//
+typedef struct Token Token;
+struct Token {
+    TokenKind kind; // Token kind
+    Token* next;    // Next token
+    char* str;      // Token string
+    int len;        // Token length
+};
 
 // TODO: change static
 char* read_file(char* path);
