@@ -5,14 +5,63 @@ Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
     tok->kind = kind;
     tok->str  = str;
     tok->len  = len;
-    tok->next = tok;
+    cur->next = tok;
     return tok;
+}
+
+bool startswith(char* p, char* q) {
+    return memcmp(p, q, strlen(q)) == 0;
 }
 
 Token* tokenize(char* path) {
     char* p = read_file(path);
+    // printf("get file\n");
     
-    printf("%s", p);
+    Token head; head.next = NULL;
+    Token* cur = &head;
+    
+    while (*p) {
+        // Skip whitespace characters.
+        if (isspace(*p)) {
+            p++;
+            continue;
+        }
+        
+        // Multi-letter punctuator
+        if (startswith(p, "<>") || startswith(p, "<=") ||
+            startswith(p, ">=") || startswith(p, ":=")) {
+            cur = new_token(TK_PUNCT, cur, p, 2);
+            p += 2;
+            continue;
+        }
+        
+        // Single-letter punctuator
+        if (strchr("+-*/()=<>,.;", *p)) {
+            cur = new_token(TK_PUNCT, cur, p++, 1);
+            continue;
+        }
+        
+        // Integer literal
+        if (isdigit(*p)) {
+            cur = new_token(TK_NUM, cur, p, 0);
+            char* q = p;
+            strtol(p, &p, 10); // 数値格納
+            cur->len = p - q;
+            continue;
+        }
+        
+        // Identifier
+        if (isalpha(*p)) {
+            cur = new_token(TK_IDENT, cur, p, 0);
+            char* q = p;
+            while (isalnum(*p)) { p++; }
+            cur->len = p - q;
+            continue;
+        }
+    }
+    
+    new_token(TK_EOF, cur, p, 0);
+    return head.next;
 }
 
 // 'path' ファイルの中身を char* に格納
