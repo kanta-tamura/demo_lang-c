@@ -6,7 +6,6 @@ int main(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
     // tokenize and print results
-    Token* token = tokenize(argv[1]);
-    debug_print_token(token);
+    Token* token = debug_tokenize(argv[1]);
     return 0;
 }

@@ -25,9 +25,10 @@ struct Token {
 };
 
 Token* tokenize(char* path);
-void debug_print_token(Token* tok);
+Token* debug_tokenize(char* path);
 
 static Token* new_token(TokenKind kind, Token* cur, char* str, int len);
 static bool starts_with(char* p, char* q);
 static bool is_keyword(char* p);
 static char* read_file(char* path);
+static void debug_print_token(Token* tok);

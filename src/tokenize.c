@@ -90,6 +90,13 @@ Token* tokenize(char* path) {
     return head.next;
 }
 
+// データを出力するトークナイザー
+Token* debug_tokenize(char* path) {
+    Token* tok = tokenize(path);
+    debug_print_token(tok);
+    return tok;
+}
+
 // 'path' ファイルの中身を char* に格納
 static char* read_file(char* path) {
     // open 'path' file
@@ -129,7 +136,7 @@ static char* read_file(char* path) {
 }
 
 // トークンに分割したものを出力する。
-void debug_print_token(Token* tok) {
+static void debug_print_token(Token* tok) {
     Token* cur = tok;
     int i = 0;
     while (cur->kind != TK_EOF) {
