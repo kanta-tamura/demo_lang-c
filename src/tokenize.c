@@ -1,6 +1,6 @@
 #include "main.h"
 
-Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
+static Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
     Token* tok = calloc(1, sizeof(Token));
     tok->kind = kind;
     tok->str  = str;
@@ -9,13 +9,26 @@ Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
     return tok;
 }
 
-bool startswith(char* p, char* q) {
+static bool startswith(char* p, char* q) {
     return memcmp(p, q, strlen(q)) == 0;
+}
+
+static bool iskeyword(char* p) {
+    static char* kw[] = {
+      "begin", "end", "if", "then", "while", "do", "return",
+      "function", "var", "const", "odd", "write", "writeln",
+    };
+    
+    for (int i = 0; i < sizeof(kw) / sizeof(*kw); i++) {
+        if (strncmp(p, kw[i], strlen(kw[i])) == 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 Token* tokenize(char* source) {
     char* p = source;
-    // printf("get file\n");
     
     Token head; head.next = NULL;
     Token* cur = &head;
@@ -38,6 +51,15 @@ Token* tokenize(char* source) {
         // Single-letter punctuator
         if (strchr("+-*/()=<>,.;", *p)) {
             cur = new_token(TK_PUNCT, cur, p++, 1);
+            continue;
+        }
+        
+        // key-word
+        if (iskeyword(p)) {
+            cur = new_token(TK_KEY, cur, p, 0);
+            char* q = p;
+            while (isalpha(*p)) { p++; }
+            cur->len = p - q;
             continue;
         }
         

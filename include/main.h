@@ -24,8 +24,9 @@ struct Token {
     int len;        // Token length
 };
 
-Token* new_token(TokenKind kind, Token* cur, char* str, int len);
-bool startswith(char* p, char* q);
+static Token* new_token(TokenKind kind, Token* cur, char* str, int len);
+static bool startswith(char* p, char* q);
+static bool iskeyword(char* p);
 Token* tokenize(char* source);
 // TODO: change static
 char* read_file(char* path);
