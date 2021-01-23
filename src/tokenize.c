@@ -1,8 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "main.h"
 
 // 'path' ファイルの中身を char* に格納
-static char* read_file(char* path) {
+char* read_file(char* path) {
     // open 'path' file
     FILE* fp;
     if ( ( fp = fopen(path, "r") ) == NULL ) {
@@ -37,10 +36,4 @@ static char* read_file(char* path) {
     fclose(out);
     
     return buf;
-}
-
-int main() {
-    char* source = read_file("input.txt");
-    printf("%s", source);
-    return 0;
 }
