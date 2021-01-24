@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <ctype.h>
 #include <string.h>
@@ -28,6 +29,7 @@ Token* tokenize(char* path);
 Token* debug_tokenize(char* path);
 
 static Token* new_token(TokenKind kind, Token* cur, char* str, int len);
+void error_at(char* source, char* loc, char* fmt, ...);
 static bool starts_with(char* p, char* q);
 static bool is_keyword(char* p);
 static char* read_file(char* path);

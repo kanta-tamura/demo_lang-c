@@ -4,10 +4,24 @@
 static Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
     Token* tok = calloc(1, sizeof(Token));
     tok->kind = kind;
-    tok->str  = str;
-    tok->len  = len;
+    tok->str = str;
+    tok->len = len;
     cur->next = tok;
     return tok;
+}
+
+// Reports an error location and exit.
+void error_at(char* source, char* loc, char* fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+
+    int pos = loc - source;
+    fprintf(stderr, "%s\n", source);
+    fprintf(stderr, "%*s", pos, "");
+    fprintf(stderr, "^ ");
+    vfprintf(stderr, fmt, ap);
+    fprintf(stderr, "\n");
+    exit(EXIT_FAILURE);
 }
 
 // 'p' の先頭と 'q' の内容が一致するかどうかを判定する。
@@ -21,7 +35,7 @@ static bool is_keyword(char* p) {
       "begin", "end", "if", "then", "while", "do", "return",
       "function", "var", "const", "odd", "write", "writeln",
     };
-    
+
     for (int i = 0; i < sizeof(kw) / sizeof(*kw); i++) {
         if (strncmp(p, kw[i], strlen(kw[i])) == 0) {
             return true;
@@ -32,18 +46,19 @@ static bool is_keyword(char* p) {
 
 // 'path' ファイルの内容をトークンに分割する。
 Token* tokenize(char* path) {
-    char* p = read_file(path);
-    
+    char* source = read_file(path);
+    char* p = source;
+
     Token head; head.next = NULL;
     Token* cur = &head;
-    
+
     while (*p) {
         // Skip whitespace characters.
         if (isspace(*p)) {
             p++;
             continue;
         }
-        
+
         // Multi-letter punctuator
         if (starts_with(p, "<>") || starts_with(p, "<=") ||
             starts_with(p, ">=") || starts_with(p, ":=")) {
@@ -51,13 +66,13 @@ Token* tokenize(char* path) {
             p += 2;
             continue;
         }
-        
+
         // Single-letter punctuator
         if (strchr("+-*/()=<>,.;", *p)) {
             cur = new_token(TK_PUNCT, cur, p++, 1);
             continue;
         }
-        
+
         // key-word
         if (is_keyword(p)) {
             cur = new_token(TK_KEY, cur, p, 0);
@@ -66,7 +81,7 @@ Token* tokenize(char* path) {
             cur->len = p - q;
             continue;
         }
-        
+
         // Integer literal
         if (isdigit(*p)) {
             cur = new_token(TK_NUM, cur, p, 0);
@@ -75,7 +90,7 @@ Token* tokenize(char* path) {
             cur->len = p - q;
             continue;
         }
-        
+
         // Identifier
         if (isalpha(*p)) {
             cur = new_token(TK_IDENT, cur, p, 0);
@@ -84,8 +99,10 @@ Token* tokenize(char* path) {
             cur->len = p - q;
             continue;
         }
+
+        error_at(source, p, "invalid token");
     }
-    
+
     new_token(TK_EOF, cur, p, 0);
     return head.next;
 }
@@ -101,16 +118,16 @@ Token* debug_tokenize(char* path) {
 static char* read_file(char* path) {
     // open 'path' file
     FILE* fp;
-    if ( ( fp = fopen(path, "r") ) == NULL ) {
+    if ((fp = fopen(path, "r")) == NULL) {
         fprintf(stderr, "Can't open file: %s", path);
         exit(EXIT_FAILURE);
     }
-    
+
     // バッファーへの書き込み用にストリームをオープン
     char* buf;
     size_t buflen;
     FILE* out = open_memstream(&buf, &buflen);
-    
+
     // fp の中身をすべて out に格納
     for (;;) {
         char buf2[4096];
@@ -119,19 +136,19 @@ static char* read_file(char* path) {
             break;
         fwrite(buf2, 1, n, out);
     }
-    
+
     fclose(fp);
-    
+
     // buf, buflen のサイズを更新
     fflush(out);
-    
+
     if (buflen == 0 || buf[buflen - 1] != '\n')
         fputc('\n', out);
     fputc('\0', out);
-    
+
     // buf, buflen のサイズを更新
     fclose(out);
-    
+
     return buf;
 }
 
@@ -143,7 +160,7 @@ static void debug_print_token(Token* tok) {
         // export token string
         char token[64] = "";
         strncpy(token, cur->str, cur->len);
-        
+
         switch (cur->kind) {
         case TK_KEY:
             printf("%3d:  %-10s:%s\n", i, token, "予約語");
