@@ -22,14 +22,22 @@ struct Token {
     TokenKind kind; // Token kind
     Token* next;    // Next token
     char* str;      // Token string
+    int val;        // If kind is TK_NUM, its value
     int len;        // Token length
 };
+
+extern char* source;
 
 Token* tokenize(char* path);
 Token* debug_tokenize(char* path);
 
+bool consume(Token* token, char* op);
+void expect(Token* token, char* op);
+int expect_nuber(Token* token);
+bool at_eof(Token* token);
+
 static Token* new_token(TokenKind kind, Token* cur, char* str, int len);
-void error_at(char* source, char* loc, char* fmt, ...);
+static void error_at(char* loc, char* fmt, ...);
 static bool starts_with(char* p, char* q);
 static bool is_keyword(char* p);
 static char* read_file(char* path);

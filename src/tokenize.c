@@ -1,5 +1,7 @@
 #include "main.h"
 
+char* source;
+
 // create new token
 static Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
     Token* tok = calloc(1, sizeof(Token));
@@ -10,8 +12,39 @@ static Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
     return tok;
 }
 
+bool consume(Token* token, char* op) {
+    if (token->kind != TK_KEY ||
+        token->kind != TK_PUNCT ||
+        strlen(op) != token->len ||
+        memcmp(token->str, op, token->len))
+        return false;
+    token = token->next;
+    return true;
+}
+
+void expect(Token* token, char* op) {
+    if (token->kind != TK_KEY ||
+        token->kind != TK_PUNCT ||
+        strlen(op) != token->len ||
+        memcmp(token->str, op, token->len))
+        error_at(token->str, "expected \"%s\"", op);
+    token = token->next;
+}
+
+int expect_nuber(Token* token) {
+    if (token->kind != TK_NUM)
+        error_at(token->str, "expected a number");
+    int val = token->val;
+    token = token->next;
+    return val;
+}
+
+bool at_eof(Token* token) {
+    return token->kind == TK_EOF;
+}
+
 // Reports an error location and exit.
-void error_at(char* source, char* loc, char* fmt, ...) {
+static void error_at(char* loc, char* fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
 
@@ -46,7 +79,7 @@ static bool is_keyword(char* p) {
 
 // 'path' ファイルの内容をトークンに分割する。
 Token* tokenize(char* path) {
-    char* source = read_file(path);
+    source = read_file(path);
     char* p = source;
 
     Token head; head.next = NULL;
@@ -86,7 +119,7 @@ Token* tokenize(char* path) {
         if (isdigit(*p)) {
             cur = new_token(TK_NUM, cur, p, 0);
             char* q = p;
-            strtol(p, &p, 10); // 数値格納
+            cur->val = strtol(p, &p, 10);
             cur->len = p - q;
             continue;
         }
@@ -100,7 +133,7 @@ Token* tokenize(char* path) {
             continue;
         }
 
-        error_at(source, p, "invalid token");
+        error_at(p, "invalid token");
     }
 
     new_token(TK_EOF, cur, p, 0);
