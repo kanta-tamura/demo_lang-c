@@ -63,18 +63,18 @@ static bool starts_with(char* p, char* q) {
 }
 
 // 予約語かどうかを判定する。
-static bool is_keyword(char* p) {
+static int len_match_keyword(char* p) {
     static char* kw[] = {
       "begin", "end", "if", "then", "while", "do", "return",
-      "function", "var", "const", "odd", "write", "writeln",
+      "function", "var", "const", "odd", "writeln", "write",
     };
 
     for (int i = 0; i < sizeof(kw) / sizeof(*kw); i++) {
         if (strncmp(p, kw[i], strlen(kw[i])) == 0) {
-            return true;
+            return strlen(kw[i]);
         }
     }
-    return false;
+    return 0;
 }
 
 // 'path' ファイルの内容をトークンに分割する。
@@ -107,11 +107,12 @@ Token* tokenize(char* path) {
         }
 
         // key-word
-        if (is_keyword(p)) {
+        int len = len_match_keyword(p);
+        if (len != 0) {
             cur = new_token(TK_KEY, cur, p, 0);
             char* q = p;
-            while (isalpha(*p)) { p++; }
-            cur->len = p - q;
+            p += len;
+            cur->len = len;
             continue;
         }
 

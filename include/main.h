@@ -39,7 +39,7 @@ bool at_eof(Token* token);
 static Token* new_token(TokenKind kind, Token* cur, char* str, int len);
 static void error_at(char* loc, char* fmt, ...);
 static bool starts_with(char* p, char* q);
-static bool is_keyword(char* p);
+static int len_match_keyword(char* p);
 static char* read_file(char* path);
 static void debug_print_token(Token* tok);
 
