@@ -27,14 +27,16 @@ struct Token {
 };
 
 extern char* source;
+extern Token* tok;
 
 Token* tokenize(char* path);
 Token* debug_tokenize(char* path);
 
-bool consume(Token* token, char* op);
-void expect(Token* token, char* op);
-int expect_nuber(Token* token);
-bool at_eof(Token* token);
+bool consume(char* op);
+void expect(char* op);
+int expect_number();
+char* expect_ident();
+bool at_eof();
 
 static Token* new_token(TokenKind kind, Token* cur, char* str, int len);
 static void error_at(char* loc, char* fmt, ...);
@@ -47,4 +49,14 @@ static void debug_print_token(Token* tok);
 // parse.c
 //
 
-
+void parse();
+static void program();
+static void block();
+static void const_decl();
+static void var_decl();
+static void func_decl();
+static void statement();
+static void condition();
+static void expression();
+static void term();
+static void factor();

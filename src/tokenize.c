@@ -1,6 +1,7 @@
 #include "main.h"
 
 char* source;
+Token* tok;
 
 // create new token
 static Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
@@ -12,45 +13,62 @@ static Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
     return tok;
 }
 
-bool consume(Token* token, char* op) {
-    if (token->kind != TK_KEY ||
-        token->kind != TK_PUNCT ||
-        strlen(op) != token->len ||
-        memcmp(token->str, op, token->len))
+bool consume(char* op) {
+    if ((tok->kind != TK_KEY && tok->kind != TK_PUNCT) ||
+        strlen(op) != tok->len ||
+        memcmp(tok->str, op, tok->len))
         return false;
-    token = token->next;
+    tok = tok->next;
     return true;
 }
 
-void expect(Token* token, char* op) {
-    if (token->kind != TK_KEY ||
-        token->kind != TK_PUNCT ||
-        strlen(op) != token->len ||
-        memcmp(token->str, op, token->len))
-        error_at(token->str, "expected \"%s\"", op);
-    token = token->next;
+void expect(char* op) {
+    if ((tok->kind != TK_KEY && tok->kind != TK_PUNCT) ||
+        strlen(op) != tok->len ||
+        memcmp(tok->str, op, tok->len))
+        error_at(tok->str, "expected \"%s\"", op);
+    tok = tok->next;
 }
 
-int expect_nuber(Token* token) {
-    if (token->kind != TK_NUM)
-        error_at(token->str, "expected a number");
-    int val = token->val;
-    token = token->next;
+int expect_number() {
+    if (tok->kind != TK_NUM)
+        error_at(tok->str, "expected a number");
+    int val = tok->val;
+    tok = tok->next;
     return val;
 }
 
-bool at_eof(Token* token) {
-    return token->kind == TK_EOF;
+char* expect_ident() {
+    if (tok->kind != TK_IDENT)
+        error_at(tok->str, "expected a identifier");
+    char* buf = malloc(64 * sizeof(char));
+    strncpy(buf, tok->str, tok->len);
+    tok = tok->next;
+    return buf;
+}
+
+bool at_eof() {
+    return tok->kind == TK_EOF;
 }
 
 // Reports an error location and exit.
+//! ERROR: ^ の位置
 static void error_at(char* loc, char* fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
 
-    int pos = loc - source;
-    fprintf(stderr, "%s\n", source);
-    fprintf(stderr, "%*s", pos, "");
+    int pos = loc - source, n_num = 1, err_n_loc, err_next_n_loc;
+    for (int i = 0; i < pos; i++) {
+        if (source[i] == '\n') { n_num++; err_n_loc = i; }
+    }
+    for (int i = err_n_loc + 1; ; i++) {
+        if (source[i] == '\n') { err_next_n_loc = i; break; }
+    }
+    source += err_n_loc + 1;
+    char buf[1024] = "";
+    strncpy(buf, source, err_next_n_loc - err_n_loc - 1);
+    fprintf(stderr, "%2d:%2d: %s\n", n_num, pos - err_n_loc, buf);
+    fprintf(stderr, "%*s", pos - err_n_loc + 6, "");
     fprintf(stderr, "^ ");
     vfprintf(stderr, fmt, ap);
     fprintf(stderr, "\n");
@@ -143,9 +161,9 @@ Token* tokenize(char* path) {
 
 // データを出力するトークナイザー
 Token* debug_tokenize(char* path) {
-    Token* tok = tokenize(path);
-    debug_print_token(tok);
-    return tok;
+    Token* token = tokenize(path);
+    debug_print_token(token);
+    return token;
 }
 
 // 'path' ファイルの中身を char* に格納
@@ -187,8 +205,8 @@ static char* read_file(char* path) {
 }
 
 // トークンに分割したものを出力する。
-static void debug_print_token(Token* tok) {
-    Token* cur = tok;
+static void debug_print_token(Token* token) {
+    Token* cur = token;
     int i = 0;
     while (cur->kind != TK_EOF) {
         // export token string
