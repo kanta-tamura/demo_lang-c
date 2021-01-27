@@ -13,6 +13,7 @@ static Token* new_token(TokenKind kind, Token* cur, char* str, int len) {
     return tok;
 }
 
+// 'op' と現在のトークンがマッチした場合、トークンを消費する。
 bool consume(char* op) {
     if ((tok->kind != TK_KEY && tok->kind != TK_PUNCT) ||
         strlen(op) != tok->len ||
@@ -22,6 +23,7 @@ bool consume(char* op) {
     return true;
 }
 
+// Ensure that the current token is 'op'.
 void expect(char* op) {
     if ((tok->kind != TK_KEY && tok->kind != TK_PUNCT) ||
         strlen(op) != tok->len ||
@@ -30,6 +32,7 @@ void expect(char* op) {
     tok = tok->next;
 }
 
+// Ensure that the current token is TK_NUM.
 int expect_number() {
     if (tok->kind != TK_NUM)
         error_at(tok->str, "expected a number");
@@ -38,6 +41,7 @@ int expect_number() {
     return val;
 }
 
+// Ensure that the current token is TK_IDENT.
 char* expect_ident() {
     if (tok->kind != TK_IDENT)
         error_at(tok->str, "expected a identifier");
@@ -52,7 +56,7 @@ bool at_eof() {
 }
 
 // Reports an error location and exit.
-//! ERROR: ^ の位置
+// TODO: Refactoring
 static void error_at(char* loc, char* fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
@@ -68,7 +72,7 @@ static void error_at(char* loc, char* fmt, ...) {
     char buf[1024] = "";
     strncpy(buf, source, err_next_n_loc - err_n_loc - 1);
     fprintf(stderr, "%2d:%2d: %s\n", n_num, pos - err_n_loc, buf);
-    fprintf(stderr, "%*s", pos - err_n_loc + 6, "");
+    fprintf(stderr, "%*s", pos - err_n_loc + 5, "");
     fprintf(stderr, "^ ");
     vfprintf(stderr, fmt, ap);
     fprintf(stderr, "\n");

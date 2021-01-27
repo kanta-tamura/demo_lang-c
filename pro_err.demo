@@ -11,6 +11,6 @@ const bunsi = 32, bunbo = 88;
 var g;
 
 begin
-    g := gcd(bunsi bunbo);
+    g := gcd(bunsi, bunbo);
     write bunsi / g; write bunbo / g; writeln
 end.

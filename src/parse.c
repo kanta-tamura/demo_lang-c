@@ -1,15 +1,26 @@
 #include "main.h"
 
+void program();
+void block();
+void const_decl();
+void var_decl();
+void func_decl();
+void statement();
+void condition();
+void expression();
+void term();
+void factor();
+
 void parse() {
     program();
 }
 
-static void program() {
+void program() {
     block();
     expect(".");
 }
 
-static void block() {
+void block() {
     while (true) {
         if (consume("const")) {
             const_decl();
@@ -28,7 +39,7 @@ static void block() {
     statement();
 }
 
-static void const_decl() {
+void const_decl() {
     while (true) {
         expect_ident();      // 文字列を返す
         expect("=");
@@ -38,7 +49,7 @@ static void const_decl() {
     }
 }
 
-static void var_decl() {
+void var_decl() {
     while (true) {
         expect_ident();      // 文字列を返す
         if (consume(";")) break;
@@ -46,7 +57,7 @@ static void var_decl() {
     }
 }
 
-static void func_decl() {
+void func_decl() {
     expect_ident();          // 文字列を返す
     expect("(");
     while (true) {
@@ -58,7 +69,7 @@ static void func_decl() {
     expect(";");
 }
 
-static void statement() {
+void statement() {
     if (tok->kind == TK_IDENT) {
         expect_ident();      // 文字列を返す
         expect(":=");
@@ -93,7 +104,7 @@ static void statement() {
     // do nothing
 }
 
-static void condition() {
+void condition() {
     if (consume("odd")) {
         expression();
         return;
@@ -105,7 +116,7 @@ static void condition() {
     // else ERROR
 }
 
-static void expression() {
+void expression() {
     if (consume("+") || consume("-")) term();
     else term();
     while (true) {
@@ -114,7 +125,7 @@ static void expression() {
     }
 }
 
-static void term() {
+void term() {
     factor();
     while (true) {
         if (consume("*") || consume("/")) term();
@@ -122,7 +133,7 @@ static void term() {
     }
 }
 
-static void factor() {
+void factor() {
     if (tok->kind == TK_IDENT) {
         expect_ident();      // 文字列を返す
         if (consume("(")) {
