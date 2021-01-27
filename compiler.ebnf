@@ -1,0 +1,71 @@
+program = block, ".";
+
+block
+= statement
+| constDecl, statement
+| varDecl,   statement
+| funcDecl,  statement
+;
+
+constDecl = "block", exprLoop, ";";
+
+varDecl = "var", identLoop, ";";
+
+funcDecl = function, ident, "(", { nothing | identLoop }, ")", block, ";";
+
+exprLoop = ident, "=", number, { ";" | ",", expr };
+
+identLoop = ident, { nothing | "," };
+
+statement
+= ident, ":=", expression
+| "begin", beginLoop, "end"
+| "if", conditon, "then", statement
+| "while", condition, "do", statement
+| "return", expression
+| "write", expression
+| "writeln"
+| nothing
+; 
+
+beginLoop
+= statement, ";", begin
+| statement
+;
+
+condition
+= odd, expression
+| expression, { "=" | "<>" | "<" | ">" | "<=" | ">=" }, expression
+;
+
+expression = { nothing | "+" | "-" }, term, { nothing | AddSub };
+
+term = factor, { nothing | MulDiv };
+
+factor
+= ident
+| number
+| ident, "(", { nothing | expressionLoop }, ")"
+| "(", expression, ")"
+;
+
+AddSub
+= "+", term
+| "-", term
+;
+
+MulDiv
+= "*", factor
+| "/", factor
+;
+
+expressionLoop = expression, { nothing, "," };
+
+nothing =;
+
+ident = alf+, num*;
+
+number = num+;
+
+alf = [a-z|A-Z];
+num = [0-9];

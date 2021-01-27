@@ -1,5 +1,30 @@
 #include "main.h"
 
+Node* new_node(NodeKind kind) {
+    Node* node = calloc(1, sizeof(Node));
+    node->kind = kind;
+    return node;
+}
+
+Node* new_binary(NodeKind kind, Node* lhs, Node* rhs) {
+    Node* node = new_node(kind);
+    node->lhs = lhs;
+    node->rhs = rhs;
+    return node;
+}
+
+Node* new_num(int val) {
+    Node* node = new_node(ND_NUM);
+    node->val = val;
+    return node;
+}
+
+Node* new_ident(char* buf) {
+    Node* node = new_node(ND_IDENT);
+    node->buf = buf;
+    return node;
+}
+
 void program();
 void block();
 void const_decl();
@@ -11,15 +36,21 @@ void expression();
 void term();
 void factor();
 
+// parser
 void parse() {
     program();
 }
 
+// program := block "."
 void program() {
     block();
     expect(".");
 }
 
+// block := constDecl statement
+//        | varDecl   statement
+//        | funcDecl  statement
+//        | statement
 void block() {
     while (true) {
         if (consume("const")) {
