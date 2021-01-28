@@ -7,7 +7,7 @@ HEAD := $(wildcard ../include/*.h)
 dummy: $(OBJS)
 
 %.o: ../src/%.c
-	$(CC) -c $< -o $@ -I ../include
+	$(CC) $(CFLAGS) -c $< -o $@ -I ../include
 
 %.d: ../src/%.c $(HEAD)
 	cpp -MM $< -MF $@ -I ../include

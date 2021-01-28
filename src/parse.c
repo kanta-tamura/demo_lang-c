@@ -41,16 +41,18 @@ void parse() {
     program();
 }
 
-// program := block "."
+// program = block, "."
 void program() {
     block();
     expect(".");
 }
 
-// block := constDecl statement
-//        | varDecl   statement
-//        | funcDecl  statement
-//        | statement
+// block
+// = statement
+// | constDecl, statement
+// | varDecl, statement
+// | funcDecl, statement
+// ;
 void block() {
     while (true) {
         if (consume("const")) {

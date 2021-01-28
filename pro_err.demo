@@ -1,4 +1,4 @@
-function gcd(x, y)
+function (x, y)
 begin
     while x <> y do
         begin if x < y then y := y - x;
