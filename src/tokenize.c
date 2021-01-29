@@ -1,5 +1,12 @@
 #include "main.h"
 
+static Token* new_token(TokenKind kind, Token* cur, char* str, int len);
+static void error_at(char* loc, char* fmt, ...);
+static bool starts_with(char* p, char* q);
+static int len_match_keyword(char* p);
+static char* read_file(char* path);
+static void debug_print_token(Token* tok);
+
 char* source;
 Token* tok;
 
@@ -132,7 +139,6 @@ Token* tokenize(char* path) {
         int len = len_match_keyword(p);
         if (len != 0) {
             cur = new_token(TK_KEY, cur, p, 0);
-            char* q = p;
             p += len;
             cur->len = len;
             continue;
