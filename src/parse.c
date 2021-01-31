@@ -25,26 +25,27 @@ Node* new_ident(char* buf) {
     return node;
 }
 
-void program();
-void block();
-void const_decl();
-void var_decl();
-void func_decl();
-void statement();
-void condition();
-void expression();
-void term();
-void factor();
+Node* program();
+Node* block();
+Node* const_decl();
+Node* var_decl();
+Node* func_decl();
+Node* statement();
+Node*  condition();
+Node* expression();
+Node* term();
+Node* factor();
 
 // parser
-void parse() {
-    program();
+Node* parse() {
+    return program();
 }
 
 // program = block, "."
-void program() {
-    block();
+Node* program() {
+    Node* node = block();
     expect(".");
+    return node;
 }
 
 // block
@@ -53,7 +54,7 @@ void program() {
 // | varDecl, statement
 // | funcDecl, statement
 // ;
-void block() {
+Node* block() {
     while (true) {
         if (consume("const")) {
             const_decl();
@@ -72,7 +73,7 @@ void block() {
     statement();
 }
 
-void const_decl() {
+Node* const_decl() {
     while (true) {
         expect_ident();      // 文字列を返す
         expect("=");
@@ -82,7 +83,7 @@ void const_decl() {
     }
 }
 
-void var_decl() {
+Node* var_decl() {
     while (true) {
         expect_ident();      // 文字列を返す
         if (consume(";")) break;
@@ -90,7 +91,7 @@ void var_decl() {
     }
 }
 
-void func_decl() {
+Node* func_decl() {
     expect_ident();          // 文字列を返す
     expect("(");
     while (true) {
@@ -102,7 +103,7 @@ void func_decl() {
     expect(";");
 }
 
-void statement() {
+Node* statement() {
     if (tok->kind == TK_IDENT) {
         expect_ident();      // 文字列を返す
         expect(":=");
@@ -137,7 +138,7 @@ void statement() {
     // do nothing
 }
 
-void condition() {
+Node* condition() {
     if (consume("odd")) {
         expression();
         return;
@@ -149,7 +150,7 @@ void condition() {
     // else ERROR
 }
 
-void expression() {
+Node* expression() {
     if (consume("+") || consume("-")) term();
     else term();
     while (true) {
@@ -158,7 +159,7 @@ void expression() {
     }
 }
 
-void term() {
+Node* term() {
     factor();
     while (true) {
         if (consume("*") || consume("/")) term();
@@ -166,7 +167,7 @@ void term() {
     }
 }
 
-void factor() {
+Node* factor() {
     if (tok->kind == TK_IDENT) {
         expect_ident();      // 文字列を返す
         if (consume("(")) {

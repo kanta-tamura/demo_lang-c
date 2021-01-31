@@ -7,7 +7,7 @@ int main(int argc, char** argv) {
     }
     // tokenize and print results
     tok = debug_tokenize(argv[1]);
-    parse();
+    Node* node = parse();
     printf("Success\n");
     return 0;
 }

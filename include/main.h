@@ -68,5 +68,5 @@ struct Node {
     char* buf;      // Used if kind == ND_IDENT
 };
 
-void parse();
+Node* parse();
 

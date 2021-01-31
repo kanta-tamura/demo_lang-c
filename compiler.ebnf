@@ -2,16 +2,16 @@ program = block, ".";
 
 block
 = statement
-| constDecl, statement
-| varDecl,   statement
-| funcDecl,  statement
+| constDecl, block
+| varDecl,   block
+| funcDecl,  block
 ;
 
 constDecl = "block", exprLoop, ";";
 
 varDecl = "var", identLoop, ";";
 
-funcDecl = function, ident, "(", { nothing | identLoop }, ")", block, ";";
+funcDecl = "function", ident, "(", { nothing | identLoop }, ")", block, ";";
 
 exprLoop = ident, "=", number, { ";" | ",", expr };
 
